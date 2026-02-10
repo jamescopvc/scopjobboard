@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { JOBS_PER_PAGE } from "@/lib/constants";
 import type { LiveJob } from "@/lib/types";
-import { JobCard } from "@/components/job-card";
-import { JobFilters, JobSearch } from "@/components/job-filters";
-import { Pagination } from "@/components/pagination";
+import { JobsContent } from "@/components/jobs-content";
 import { DotField } from "@/components/dot-field";
 
 export default async function Home({
@@ -63,8 +61,6 @@ export default async function Home({
 
   const { data: jobs, count } = await query;
 
-  const totalPages = Math.ceil((count ?? 0) / JOBS_PER_PAGE);
-
   // Get distinct companies for the filter dropdown
   const { data: companiesData } = await supabase
     .from("live_jobs")
@@ -79,11 +75,6 @@ export default async function Home({
   const companies = Array.from(companiesMap.entries())
     .map(([slug, name]) => ({ slug, name }))
     .sort((a, b) => a.name.localeCompare(b.name));
-
-  const paginationParams: Record<string, string> = {};
-  if (departments.length > 0) paginationParams.department = departments.join(",");
-  if (selectedCompanies.length > 0) paginationParams.company = selectedCompanies.join(",");
-  if (search) paginationParams.q = search;
 
   return (
     <>
@@ -139,33 +130,15 @@ export default async function Home({
         <h2 className="mb-6 text-4xl font-light tracking-tight text-black">
           Open Positions
         </h2>
-        <div className="mb-4 max-w-md">
-          <JobSearch currentSearch={search} basePath="/" />
-        </div>
-        <div className="mb-6">
-          <JobFilters
-            currentDepartments={departments}
-            currentCompanies={selectedCompanies}
-            companies={companies}
-            basePath="/"
-          />
-        </div>
-        <div className="mt-8">
-          {(jobs as LiveJob[])?.length ? (
-            (jobs as LiveJob[]).map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))
-          ) : (
-            <p className="py-16 text-center text-sm text-gray-400">
-              No jobs found matching your filters.
-            </p>
-          )}
-        </div>
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
+        <JobsContent
+          initialJobs={(jobs as LiveJob[]) ?? []}
+          initialCount={count ?? 0}
+          companies={companies}
+          initialDepartments={departments}
+          initialCompanies={selectedCompanies}
+          initialSearch={search}
+          initialPage={page}
           basePath="/"
-          searchParams={paginationParams}
         />
       </section>
     </>

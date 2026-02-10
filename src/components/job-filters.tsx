@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { DEPARTMENT_TAGS } from "@/lib/constants";
 
 interface JobFiltersProps {
   currentDepartments: string[];
   currentCompanies: string[];
   companies: { slug: string; name: string }[];
-  basePath?: string;
+  onDepartmentChange: (departments: string[]) => void;
+  onCompanyChange: (companies: string[]) => void;
 }
 
 const Checkmark = () => (
@@ -27,10 +27,9 @@ export function JobFilters({
   currentDepartments,
   currentCompanies,
   companies,
-  basePath = "/jobs",
+  onDepartmentChange,
+  onCompanyChange,
 }: JobFiltersProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [deptOpen, setDeptOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const deptRef = useRef<HTMLDivElement>(null);
@@ -49,29 +48,18 @@ export function JobFilters({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  function replaceParams(key: string, values: string[]) {
-    const sp = new URLSearchParams(searchParams.toString());
-    sp.delete(key);
-    values.forEach((v) => sp.append(key, v));
-    sp.delete("page");
-    const qs = sp.toString();
-    router.replace(`${basePath}${qs ? `?${qs}` : ""}`, { scroll: false });
-  }
-
   function toggleDepartment(tag: string) {
-    const current = searchParams.getAll("department");
-    const next = current.includes(tag)
-      ? current.filter((d) => d !== tag)
-      : [...current, tag];
-    replaceParams("department", next);
+    const next = currentDepartments.includes(tag)
+      ? currentDepartments.filter((d) => d !== tag)
+      : [...currentDepartments, tag];
+    onDepartmentChange(next);
   }
 
   function toggleCompany(slug: string) {
-    const current = searchParams.getAll("company");
-    const next = current.includes(slug)
-      ? current.filter((c) => c !== slug)
-      : [...current, slug];
-    replaceParams("company", next);
+    const next = currentCompanies.includes(slug)
+      ? currentCompanies.filter((c) => c !== slug)
+      : [...currentCompanies, slug];
+    onCompanyChange(next);
   }
 
   const deptLabel =
@@ -106,7 +94,7 @@ export function JobFilters({
         {deptOpen && (
           <div className="absolute left-0 top-full z-10 mt-1 w-52 rounded border border-gray-200 bg-white py-1 shadow-sm">
             <button
-              onClick={() => replaceParams("department", [])}
+              onClick={() => onDepartmentChange([])}
               className="block w-full px-3 py-1.5 text-left text-xs text-gray-500 transition-colors duration-150 hover:bg-gray-50"
             >
               Clear all
@@ -151,7 +139,7 @@ export function JobFilters({
         {companyOpen && (
           <div className="absolute left-0 top-full z-10 mt-1 w-56 rounded border border-gray-200 bg-white py-1 shadow-sm">
             <button
-              onClick={() => replaceParams("company", [])}
+              onClick={() => onCompanyChange([])}
               className="block w-full px-3 py-1.5 text-left text-xs text-gray-500 transition-colors duration-150 hover:bg-gray-50"
             >
               Clear all
@@ -189,47 +177,33 @@ export function JobFilters({
 
 interface JobSearchProps {
   currentSearch: string;
-  basePath?: string;
+  onSearchChange: (value: string) => void;
 }
 
-export function JobSearch({ currentSearch, basePath = "/jobs" }: JobSearchProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function JobSearch({ currentSearch, onSearchChange }: JobSearchProps) {
   const [searchValue, setSearchValue] = useState(currentSearch);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Only sync from prop when the input is NOT focused (user not typing)
+  // Sync from parent when search is cleared externally
   useEffect(() => {
     if (document.activeElement !== inputRef.current) {
       setSearchValue(currentSearch);
     }
   }, [currentSearch]);
 
-  function submitSearch(value: string) {
-    const sp = new URLSearchParams(searchParams.toString());
-    if (value.trim()) {
-      sp.set("q", value.trim());
-    } else {
-      sp.delete("q");
-    }
-    sp.delete("page");
-    const qs = sp.toString();
-    router.replace(`${basePath}${qs ? `?${qs}` : ""}`, { scroll: false });
-  }
-
   function handleSearchChange(value: string) {
     setSearchValue(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      submitSearch(value);
+      onSearchChange(value);
     }, 500);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      submitSearch(searchValue);
+      onSearchChange(searchValue);
     }
   }
 

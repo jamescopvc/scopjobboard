@@ -1,10 +1,7 @@
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { JOBS_PER_PAGE } from "@/lib/constants";
 import type { LiveJob } from "@/lib/types";
-import { JobCard } from "@/components/job-card";
-import { JobFilters, JobSearch } from "@/components/job-filters";
-import { Pagination } from "@/components/pagination";
+import { JobsContent } from "@/components/jobs-content";
 
 export const metadata = {
   title: "Portfolio Job Directory",
@@ -19,7 +16,6 @@ export default async function JobsPage({
 }) {
   const params = await searchParams;
 
-  // Department can be a single string or array of strings
   const departments: string[] = Array.isArray(params.department)
     ? params.department
     : typeof params.department === "string"
@@ -36,7 +32,6 @@ export default async function JobsPage({
 
   const supabase = await createClient();
 
-  // Build query
   let query = supabase
     .from("live_jobs")
     .select("*", { count: "exact" })
@@ -61,9 +56,6 @@ export default async function JobsPage({
 
   const { data: jobs, count } = await query;
 
-  const totalPages = Math.ceil((count ?? 0) / JOBS_PER_PAGE);
-
-  // Get distinct companies for the filter dropdown
   const { data: companiesData } = await supabase
     .from("live_jobs")
     .select("company_slug, company_name");
@@ -78,47 +70,19 @@ export default async function JobsPage({
     .map(([slug, name]) => ({ slug, name }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // Build searchParams for pagination
-  const paginationParams: Record<string, string> = {};
-  if (departments.length > 0) paginationParams.department = departments.join(",");
-  if (selectedCompanies.length > 0) paginationParams.company = selectedCompanies.join(",");
-  if (search) paginationParams.q = search;
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <h1 className="mb-6 text-4xl font-light tracking-tight text-black">
         Open Positions
       </h1>
-      <div className="mb-4 max-w-md">
-        <Suspense fallback={null}>
-          <JobSearch currentSearch={search} />
-        </Suspense>
-      </div>
-      <div className="mb-6">
-        <Suspense fallback={null}>
-          <JobFilters
-            currentDepartments={departments}
-            currentCompanies={selectedCompanies}
-            companies={companies}
-          />
-        </Suspense>
-      </div>
-      <div className="mt-8 grid gap-3">
-        {(jobs as LiveJob[])?.length ? (
-          (jobs as LiveJob[]).map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))
-        ) : (
-          <p className="py-16 text-center text-sm text-gray-400">
-            No jobs found matching your filters.
-          </p>
-        )}
-      </div>
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        basePath="/jobs"
-        searchParams={paginationParams}
+      <JobsContent
+        initialJobs={(jobs as LiveJob[]) ?? []}
+        initialCount={count ?? 0}
+        companies={companies}
+        initialDepartments={departments}
+        initialCompanies={selectedCompanies}
+        initialSearch={search}
+        initialPage={page}
       />
     </div>
   );
