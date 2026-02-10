@@ -106,7 +106,7 @@ export default async function Home({
               </p>
               <a
                 href="#jobs"
-                className="animate-bounce"
+                className=""
                 aria-label="Scroll to job listings"
               >
                 <svg
