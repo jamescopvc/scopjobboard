@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { JOBS_PER_PAGE } from "@/lib/constants";
 import type { LiveJob } from "@/lib/types";
@@ -89,14 +90,18 @@ export default async function JobsPage({
         Open Positions
       </h1>
       <div className="mb-4 max-w-md">
-        <JobSearch currentSearch={search} />
+        <Suspense fallback={null}>
+          <JobSearch currentSearch={search} />
+        </Suspense>
       </div>
       <div className="mb-6">
-        <JobFilters
-          currentDepartments={departments}
-          currentCompanies={selectedCompanies}
-          companies={companies}
-        />
+        <Suspense fallback={null}>
+          <JobFilters
+            currentDepartments={departments}
+            currentCompanies={selectedCompanies}
+            companies={companies}
+          />
+        </Suspense>
       </div>
       <div className="mt-8 grid gap-3">
         {(jobs as LiveJob[])?.length ? (
