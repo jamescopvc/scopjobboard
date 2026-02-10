@@ -122,7 +122,7 @@ export function JobFilters({
                     className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-600 transition-colors duration-150 hover:bg-gray-50"
                   >
                     <span
-                      className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                      className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
                         checked
                           ? "border-black bg-black text-white"
                           : "border-gray-300"
@@ -167,7 +167,7 @@ export function JobFilters({
                     className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-600 transition-colors duration-150 hover:bg-gray-50"
                   >
                     <span
-                      className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                      className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border ${
                         checked
                           ? "border-black bg-black text-white"
                           : "border-gray-300"
