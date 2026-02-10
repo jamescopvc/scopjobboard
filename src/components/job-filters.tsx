@@ -55,7 +55,11 @@ export function JobFilters({
     values.forEach((v) => sp.append(key, v));
     sp.delete("page");
     const qs = sp.toString();
-    router.replace(`${basePath}${qs ? `?${qs}` : ""}`, { scroll: false });
+    const newUrl = `${basePath}${qs ? `?${qs}` : ""}`;
+    // Update URL without Next.js navigation (no scroll reset)
+    window.history.replaceState(window.history.state, "", newUrl);
+    // Re-fetch server data with new params (preserves scroll)
+    router.refresh();
   }
 
   function toggleDepartment(tag: string) {
@@ -215,7 +219,9 @@ export function JobSearch({ currentSearch, basePath = "/jobs" }: JobSearchProps)
     }
     sp.delete("page");
     const qs = sp.toString();
-    router.replace(`${basePath}${qs ? `?${qs}` : ""}`, { scroll: false });
+    const newUrl = `${basePath}${qs ? `?${qs}` : ""}`;
+    window.history.replaceState(window.history.state, "", newUrl);
+    router.refresh();
   }
 
   function handleSearchChange(value: string) {
