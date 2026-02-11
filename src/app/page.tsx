@@ -3,6 +3,7 @@ import { JOBS_PER_PAGE } from "@/lib/constants";
 import type { LiveJob } from "@/lib/types";
 import { JobsContent } from "@/components/jobs-content";
 import { DotField } from "@/components/dot-field";
+import { HomeTabs } from "@/components/home-tabs";
 
 export default async function Home({
   searchParams,
@@ -127,18 +128,24 @@ export default async function Home({
 
       {/* Job listings */}
       <section id="jobs" className="px-6 py-10 sm:px-10 md:px-36">
-        <h2 className="mb-6 text-4xl font-light tracking-tight text-black">
-          Open Positions
-        </h2>
-        <JobsContent
-          initialJobs={(jobs as LiveJob[]) ?? []}
-          initialCount={count ?? 0}
-          companies={companies}
-          initialDepartments={departments}
-          initialCompanies={selectedCompanies}
-          initialSearch={search}
-          initialPage={page}
-          basePath="/"
+        <HomeTabs
+          jobsContent={
+            <>
+              <h2 className="mb-6 text-4xl font-light tracking-tight text-black">
+                Open Positions
+              </h2>
+              <JobsContent
+                initialJobs={(jobs as LiveJob[]) ?? []}
+                initialCount={count ?? 0}
+                companies={companies}
+                initialDepartments={departments}
+                initialCompanies={selectedCompanies}
+                initialSearch={search}
+                initialPage={page}
+                basePath="/"
+              />
+            </>
+          }
         />
       </section>
     </>

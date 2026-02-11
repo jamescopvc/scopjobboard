@@ -44,3 +44,14 @@ export interface Click {
   company_id: string;
   clicked_at: string;
 }
+
+export interface TalentProfile {
+  id: string;
+  full_name: string;
+  email: string;
+  linkedin_url: string | null;
+  location: string | null;
+  departments: string[];
+  resume_path: string | null;
+  created_at: string;
+}
