@@ -40,7 +40,7 @@ export function Header() {
             About
           </a>
           <Link
-            href="/jobs"
+            href="/"
             className="text-sm text-gray-400 transition-colors duration-150 hover:text-black md:text-base"
           >
             Careers
