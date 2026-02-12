@@ -7,7 +7,7 @@ export async function sendTalentWelcomeEmail(
   firstName: string,
   departments: string[]
 ) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs.scopvc.com";
+  const siteUrl = "https://jobs.scopvc.com";
 
   const { error } = await resend.emails.send({
     from: "ScOp Venture Capital <james@scopvc.com>",

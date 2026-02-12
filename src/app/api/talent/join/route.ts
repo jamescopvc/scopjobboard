@@ -122,7 +122,9 @@ export async function POST(request: Request) {
 
     // Send welcome email (fire-and-forget — don't block the response)
     const firstName = fullName.split(" ")[0];
-    sendTalentWelcomeEmail(email, firstName, departments).catch(() => {});
+    sendTalentWelcomeEmail(email, firstName, departments).catch((err) => {
+      console.error("Welcome email failed:", err);
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
