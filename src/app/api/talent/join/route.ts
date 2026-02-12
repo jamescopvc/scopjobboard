@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEPARTMENT_TAGS } from "@/lib/constants";
+import { sendTalentWelcomeEmail } from "@/lib/email";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -118,6 +119,10 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Send welcome email (fire-and-forget — don't block the response)
+    const firstName = fullName.split(" ")[0];
+    sendTalentWelcomeEmail(email, firstName, departments).catch(() => {});
 
     return NextResponse.json({ success: true });
   } catch (err) {
